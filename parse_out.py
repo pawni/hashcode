@@ -124,8 +124,8 @@ def getCommandString(command, dId):
     return string
 
 def doInvalid(err, droneId=0):
-    print err
-    print 'invalid'
+    #print err
+    #print 'invalid'
     droneCommandId[droneId] += 1
 
 validMoves = []
