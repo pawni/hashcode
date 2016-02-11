@@ -1,40 +1,53 @@
-package github.com/pawni/hashcode
+package hashcode
 
 import (
-	"bufio"
+	"os"
+	"encoding/json"
 )
 
+func ReadParams(filename string) (*Params, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	dec := json.NewDecoder(file)
+	p := Params{}
+	err = dec.Decode(&p)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
 type Params struct {
-	NumRows int
-	NumCols int
-	NumDrones int
-	Deadline int
-	MaxLoad	int
+	NumRows int `json:"numRows"`
+	NumCols int `json:"numCols"`
+	NumDrones int `json:"numDrones"`
+	Deadline int `json:"numTurns"`
+	MaxLoad	int `json:"maxPayload"`
 
-	Products []Product // contains weights of each type
+	Products []Product `json:"productWeights"`
 	
-	Warehouses []Warehouse
+	Warehouses []Warehouse `json:"warehousesData"`
 
-	Orders []Order
+	Orders []Order `json:"orderData"`
 	
 	MaxNumItems int
 	MaxWait int
 }
 
-type Product struct {
-	Weight int
-}
+type Product int // weight of product
 
 type Warehouse struct {
-	Row int
-	Col int
-	NumItems []int // contains number of each type
+	Row int `json:"x"`
+	Col int `json:"y"`
+	NumItems []int `json:"items"` // contains number of each type
 }
 
 type Order struct {
-	Row int
-	Col int
-	Items []int // contains type of each item
+	Row int `json:"x"`
+	Col int `json:"y"`
+	Items []int  `json:"items"` // contains type of each item
 }
 
 // Returns a deep copy of p
@@ -48,17 +61,18 @@ func (p *Params) Copy() (p2 Params) {
 		make([]Product, len(p.Products)),
 		make([]Warehouse, len(p.Warehouses)),
 		make([]Order, len(p.Orders)),
+		0, 0, // TODO
 	}
-	for pr, i := range p.Products {
+	for i, pr := range p.Products {
 		p2.Products[i] = pr
 	}
-	for wh, i := range p.Warehouses {
+	for i, wh := range p.Warehouses {
 		wh.NumItems = make([]int, len(wh.NumItems))
 		p2.Warehouses[i] = wh
 	}
-	for ord, i := range p.Orders {
-		ord.Items = make([]int, len(wh.Items))
-		p2.Orders[k] = ord
+	for i, ord := range p.Orders {
+		ord.Items = make([]int, len(ord.Items))
+		p2.Orders[i] = ord
 	}
 	return p2
 }

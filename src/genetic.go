@@ -2,12 +2,14 @@ package main
 
 import (
 	"math/rand"
+	"log"
+	"fmt"
 
-	"github.com/thinxer/genetix"
+	//"github.com/thinxer/genetix"
 	"github.com/pawni/hashcode"
 )
 
-var TYPES [4]rune = {'L', 'U', 'D', 'W'}
+var TYPES [4]rune = [4]rune{'L', 'U', 'D', 'W'}
 
 type Command struct {
 	DroneNumber int
@@ -19,7 +21,7 @@ type Command struct {
 	ProductType int // ... and product type
 }
 
-func (c *Command) Randomize(p *Params) {
+func (c *Command) Randomize(p *hashcode.Params) {
 	*c = Command{}
 	c.DroneNumber = rand.Intn(p.NumDrones)
 	c.Type = TYPES[rand.Intn(len(TYPES))]
@@ -42,20 +44,20 @@ func (c *Command) Randomize(p *Params) {
 
 type Solution struct {
 	Cmds []Command
-	Params *Params
-	NumMutations int
+	Params *hashcode.Params
+	MutationRate float64
 }
 
-func NewSolution(p *Params, l int, mutationRate float64, ) Solution {
+func NewSolution(p *hashcode.Params, l int, mutationRate float64, ) Solution {
 	s := Solution {}
-	s.Cmds = make(Solution, l)
+	s.Cmds = make([]Command, l)
 	s.Params = p
 	s.MutationRate = mutationRate
 	return s
 }
 
 func (s *Solution) Randomize() {
-	for _, c := range s {
+	for _, c := range s.Cmds {
 		c.Randomize(s.Params)
 	}
 }
@@ -71,14 +73,14 @@ func (s *Solution) Reset() {
 
 func (s *Solution) Mutate() {
 	for _, i := range rand.Perm(len(s.Cmds))[:int(s.MutationRate * float64(len(s.Cmds)))] {
-		s.Cmds[i].Randomize()
+		s.Cmds[i].Randomize(s.Params)
 	}
 }
 
 func (s *Solution) CrossOver(other *Solution) {
 	// assuming len(s.Cmds) == len(other.Cmds)
-	cmds1 = make([]Command, len(s.Cmds))
-	cmds2 = make([]Command, len(s.Cmds))
+	cmds1 := make([]Command, len(s.Cmds))
+	cmds2 := make([]Command, len(s.Cmds))
 	i1, i2 := 1 + rand.Intn(len(s.Cmds)), 1+ rand.Intn(len(s.Cmds))
 	if i1 > i2 {
 		i1, i2 = i2, i1
@@ -94,8 +96,16 @@ func (s *Solution) CrossOver(other *Solution) {
 }
 
 func (s *Solution) Clone() *Solution {
-	s2 = NewSolution(s.Params, len(s.Cmds), s.MutationRate))
+	s2 := NewSolution(s.Params, len(s.Cmds), s.MutationRate)
 	copy(s2.Cmds, s.Cmds)
 	return &s2	
+}
+
+func main() {
+	p, err := hashcode.ReadParams("redundancy.in.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%v\n", *p)
 }
 
