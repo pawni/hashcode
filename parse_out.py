@@ -62,7 +62,8 @@ with open(sys.argv[1]) as inFile:
 
 data_commands = {}
 
-with open(sys.argv[2]) as commandFile:
+#with open(sys.argv[2]) as commandFile:
+with sys.stdin as commandFile:
     numCommands = int(commandFile.readline().strip())
     data_commands['numCommands'] = numCommands
 
@@ -141,7 +142,7 @@ for turn in range(data['numTurns']):
             if len(data_commands['commands'][droneId]) > droneCommandId[droneId]:
                 nextCommand = data_commands['commands'][droneId][droneCommandId[droneId]]
                 #print nextCommand
-                print droneStates[droneId]
+                #print droneStates[droneId]
                 if nextCommand['type'] == 'L':
 
                     whId = nextCommand['warehouse']
@@ -219,7 +220,8 @@ for turn in range(data['numTurns']):
                     else:
                         doInvalid('turncount exceeded', droneId=droneId)
                 if nextCommand['type'] == 'D':
-                    print nextCommand
+                    #rint nextCommand
+                    #print data['orderData']
                     oId = nextCommand['order']
                     oX = data['orderData'][oId]['x']
                     oY = data['orderData'][oId]['y']
@@ -240,15 +242,15 @@ for turn in range(data['numTurns']):
                                 score += (data['numTurns']-float(turn))/data['numTurns']*100.
                                 #score
                                 validMoves.append(getCommandString(nextCommand, droneId))
-                                print 'delivered'
-                                print score
+                                #print 'delivered'
+                                #print score
                             elif np.sum(data['orderData'][oId]['itemsList']) < 0:
                                 doInvalid('negative order list', droneId=droneId)
                                 #invalid
                         else:
                             # invalid
                             doInvalid('not enough loaded in drone', droneId=droneId)
-                        print data['orderData']
+                        #print data['orderData']
                     else:
                         dist = int(math.ceil(math.sqrt((oX-dX)**2+(oY-dY)**2)))
 
@@ -263,5 +265,8 @@ for turn in range(data['numTurns']):
         else:
             droneStates[droneId]['wait'] -= 1
 
-
 print score
+with open('outfile.out', 'wb') as outFile:
+    for string in validMoves:
+        #print >>outFile, string
+        print string
