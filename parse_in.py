@@ -49,11 +49,15 @@ with open(sys.argv[1]) as inFile:
         oData['numOrders'] = numItems
         itemsLine = inFile.readline().strip().split(' ')
         oData['items'] = getNumArray(itemsLine)
+        orderItems = []
+        for j in range(numProductTypes):
+            orderItems.append(np.sum(np.array(oData['items']) == j))
+        oData['itemsList'] = orderItems
         orderData.append(oData)
 
     data['orderData'] = orderData
 
-print data
+#print data
 
 outFile = open(sys.argv[1] + '.json', 'wb')
 json = json.dump(data, outFile)
