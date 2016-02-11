@@ -16,6 +16,8 @@ func ReadParams(filename string) (*Params, error) {
 	if err != nil {
 		return nil, err
 	}
+	p.MaxNumItems = 10
+	p.MaxWait = 10
 	return &p, nil
 }
 
@@ -61,7 +63,7 @@ func (p *Params) Copy() (p2 Params) {
 		make([]Product, len(p.Products)),
 		make([]Warehouse, len(p.Warehouses)),
 		make([]Order, len(p.Orders)),
-		0, 0, // TODO
+		10000, 10, 
 	}
 	for i, pr := range p.Products {
 		p2.Products[i] = pr
